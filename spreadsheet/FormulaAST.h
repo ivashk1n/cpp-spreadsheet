@@ -23,26 +23,24 @@ public:
     FormulaAST& operator=(FormulaAST&&) = default;
     ~FormulaAST();
 
-    double Execute(/*добавьте нужные аргументы*/ args) const;
+    // аргумент функции Execute обёртка над функцией которая принимает объект типа Position и возвращает double
+    // считает значение ячейки по позиции из переданной таблицы в функторе
+    // функтор будет принимать на вход таблицу и считать значение std::function<double(Position)> arg = [&SheetInterface &sheet](Position p)->double
+    double Execute(std::function<double(Position)>& args) const;
+
     void PrintCells(std::ostream& out) const;
     void Print(std::ostream& out) const;
     void PrintFormula(std::ostream& out) const;
-
-    std::forward_list<Position>& GetCells() {
-        return cells_;
-    }
-
-    const std::forward_list<Position>& GetCells() const {
-        return cells_;
-    }
+    std::forward_list<Position>& GetCells();
+    const std::forward_list<Position>& GetCells() const;
 
 private:
-    std::unique_ptr<ASTImpl::Expr> root_expr_;
+    std::unique_ptr<ASTImpl::Expr> root_expr_; // корень дерева 
 
     // physically stores cells so that they can be
     // efficiently traversed without going through
     // the whole AST
-    std::forward_list<Position> cells_;
+    std::forward_list<Position> cells_; // индексы(позиции) ячеек, входящих в формулу
 };
 
 FormulaAST ParseFormulaAST(std::istream& in);
